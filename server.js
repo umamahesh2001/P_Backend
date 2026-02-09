@@ -379,31 +379,9 @@ app.put("/api/payments/:id/failed", paymentsCntrl.failerUpdate);
 const razorpayCntrl = require("./app/controllers/razorpay-controller");
 app.post("/api/payment/razorpay/order", authenticateUser, authorizeUser(["customer"]), razorpayCntrl.createOrder);
 app.post("/api/payment/razorpay/verify", authenticateUser, authorizeUser(["customer"]), razorpayCntrl.verifyPayment);
-app.get("/api/db-status", (req, res) => {
-  const state = mongoose.connection.readyState;
-
-  /*
-    0 = disconnected
-    1 = connected
-    2 = connecting
-    3 = disconnecting
-  */
-
-  if (state === 1) {
-    res.json({
-      success: true,
-      message: "MongoDB connected successfully",
-    });
-  } else {
-    res.status(500).json({
-      success: false,
-      message: "MongoDB NOT connected",
-      state,
-    });
-  }
+app.get("/", (req, res) => {
+  res.send("API running");
 });
-
-// Global error handling middleware
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(400).json({ error: "File upload error: " + err.message });
