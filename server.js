@@ -5,6 +5,7 @@ const _ = require("lodash");
 const socketIo = require("socket.io");
 const express = require("express");
 const cors = require("cors");
+app.use(cors());
 const multer = require("multer");
 const { checkSchema } = require("express-validator");
 const configDb = require("./config/db");
@@ -78,7 +79,7 @@ const startServer = async () => {
 };
 
 // Middleware
-app.use(cors());
+
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
