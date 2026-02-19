@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcryptjs = require("bcryptjs");
 const _ = require("lodash");
 const sendEmail = require("../utilities/node-mailer/email");
+const getEmailTemplate = require("../utilities/node-mailer/email-template");
 const { validationResult } = require("express-validator");
 const generateOtp = () => {
   const otp = Math.round(Math.random() * 10000);
@@ -30,10 +31,22 @@ usersCntrl.register = async (req, res) => {
 
     user.otp = otp1;
     await user.save();
-    sendEmail({
+
+    // Send Verify Email
+    const emailContent = `
+      <p>Welcome to PickParking! We are excited to have you on board.</p>
+      <p>Please use the OTP below to verify your email address and complete your registration:</p>
+      <div class="otp-box">${user.otp}</div>
+      <p>This OTP is valid for 10 minutes. Do not share this code with anyone.</p>
+    `;
+
+    await sendEmail({
       email: user.email,
-      text: `you have registerd with us , please verify your email with otp ${user.otp}`,
+      subject: "Welcome to PickParking - Verify Your Email",
+      html: getEmailTemplate("Verify Your Email Address", emailContent),
+      text: `Welcome to PickParking! Your verification OTP is: ${user.otp}`
     });
+
     res.status(201).json(user);
   } catch (err) {
     res.status(400).json({ error: "internal server error" });
@@ -78,11 +91,21 @@ usersCntrl.login = async (req, res) => {
     }
     if (!user.isverified) {
       console.log(user, "user");
-      sendEmail({
+
+      const emailContent = `
+        <p>It looks like you haven't verified your email address yet.</p>
+        <p>Please use the OTP below to verify your account:</p>
+        <div class="otp-box">${user.otp}</div>
+        <p>If you didn't request this, please ignore this email.</p>
+      `;
+
+      await sendEmail({
         email: user.email,
-        subject: "emial verification",
-        text: `you have registerd but not verified , please verify your email with otp ${user.otp}`,
+        subject: "Action Required: Verify Your PickParking Email",
+        html: getEmailTemplate("Pending Email Verification", emailContent),
+        text: `Please verify your email. Your OTP is: ${user.otp}`
       });
+
       return res
         .status(403)
         .json({ error: "User is not verified", email: user.email });
@@ -173,11 +196,19 @@ usersCntrl.forgotPassword = async (req, res) => {
       { otp: otp },
       { new: true }
     );
-    sendEmail({
+
+    const emailContent = `
+      <p>We received a request to reset your password for your PickParking account.</p>
+      <p>Please use the OTP below to proceed with resetting your password:</p>
+      <div class="otp-box">${otp}</div>
+      <p>If you didn't request a password reset, you can safely ignore this email.</p>
+    `;
+
+    await sendEmail({
       email: user.email,
-      subject: "Pick_Parking@ <support> Password Change",
-      text: `set password with otp ${otp}
-             don't share otp to any one`,
+      subject: "PickParking - Password Reset Request",
+      html: getEmailTemplate("Reset Your Password", emailContent),
+      text: `Your password reset OTP is: ${otp}`
     });
     res.status(201).json({ status: "success", msg: "sent success " });
   } catch (err) {
