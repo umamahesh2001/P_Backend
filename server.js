@@ -5,7 +5,17 @@ const _ = require("lodash");
 const socketIo = require("socket.io");
 const express = require("express");
 const cors = require("cors");
-app.use(cors());
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "http://16.170.231.190"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
+
+app.options("*", cors());
 const multer = require("multer");
 const { checkSchema } = require("express-validator");
 const configDb = require("./config/db");
