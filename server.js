@@ -48,7 +48,7 @@ const vehicleCtlr = require("./app/controllers/vehivle-controller");
 const bookingCntrl = require("./app/controllers/booking-controller");
 const paymentsCntrl = require("./app/controllers/payment-controller");
 const spaceCartCtlr = require("./app/controllers/spacecart-controller");
-const port = process.env.PORT || 3045; // Use environment variable for port
+const port = process.env.PORT || 80; // Use environment variable for port
 const server = http.createServer(app);
 
 // Configure Socket.IO with specific origins for security
